@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:exam_seat_booking/constants/colors.dart';
 import 'package:exam_seat_booking/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
     final SharedPreferences prefs = await _prefs;
     _isLaunched = prefs.getBool(appLaunchKey) ?? false;
     _isLogged = prefs.getBool(userLoggedKey) ?? false;
+    debugPrint("Is InitialLaunch $_isLaunched \n Is Logged $_isLogged");
   }
 
   double _fontSize = 2;
@@ -65,9 +67,9 @@ class _SplashScreenState extends State<SplashScreen>
       setState(() {
         if (_isLaunched) {
           if (_isLogged) {
-            Get.toNamed('/home');
+            Get.offNamed('/home');
           } else {
-            Get.toNamed('/login');
+            Get.offNamed('/login');
           }
         } else {
           Get.toNamed('/login');
@@ -89,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: primaryColor,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -106,9 +108,9 @@ class _SplashScreenState extends State<SplashScreen>
                     duration: const Duration(milliseconds: 1000),
                     opacity: _textOpacity,
                     child: Text(
-                      'Tweet',
+                      'ExamMate',
                       style: TextStyle(
-                        color: Colors.pink,
+                        color: secondaryColor,
                         fontWeight: FontWeight.bold,
                         fontSize: animation1.value,
                       ),
@@ -133,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: const Image(
-                    image: AssetImage('assets/images/splashIcon2.png'),
+                    image: AssetImage('assets/images/gif/splashScreenGif.gif'),
                     fit: BoxFit.cover,
                   ),
                 ),

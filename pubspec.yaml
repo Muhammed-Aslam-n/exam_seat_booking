@@ -71,6 +71,9 @@ flutter:
   assets:
      - assets/images/gif/
      - assets/images/
+     - assets/images/appIcon/
+     - assets/images/default_images/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

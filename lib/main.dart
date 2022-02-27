@@ -1,5 +1,9 @@
+import 'package:exam_seat_booking/controller/booking_controller.dart';
+import 'package:exam_seat_booking/controller/home_controller.dart';
+import 'package:exam_seat_booking/controller/authentication_controller.dart';
 import 'package:exam_seat_booking/screens/authentication/screen_login.dart';
 import 'package:exam_seat_booking/screens/authentication/screen_register.dart';
+import 'package:exam_seat_booking/screens/booking/screen_sloting.dart';
 import 'package:exam_seat_booking/screens/home/screen_home.dart';
 import 'package:exam_seat_booking/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +11,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Get.put(BookingController());
+  Get.put(HomeController());
+  Get.put(LoginController());
   runApp(const MyApp());
 }
 
@@ -25,10 +33,10 @@ class MyApp extends StatelessWidget {
         ),
         home: const SplashScreen(),
         getPages: [
-          GetPage(name: '/login', page: () => const ScreenLogin()),
-          GetPage(name: '/SignUpPage', page: () => const ScreenRegister()),
+          GetPage(name: '/login', page: () => ScreenLogin()),
+          GetPage(name: '/SignUpPage', page: () => ScreenRegister()),
           GetPage(name: '/home', page: () => const ScreenHome()),
-
+          GetPage(name: '/screenSlots', page: () => const ScreenSlot()),
         ],
       ),
     );
