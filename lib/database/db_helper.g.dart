@@ -54,25 +54,28 @@ class UserExamDetailsAdapter extends TypeAdapter<UserExamDetails> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserExamDetails(
-      userName: fields[0] as String?,
+      seatPosition: fields[4] as String?,
+      userId: fields[0] as int?,
       registeringUserName: fields[1] as String?,
       age: fields[2] as String?,
-      gender: fields[4] as String?,
+      gender: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserExamDetails obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.userName)
+      ..write(obj.userId)
       ..writeByte(1)
       ..write(obj.registeringUserName)
       ..writeByte(2)
       ..write(obj.age)
+      ..writeByte(3)
+      ..write(obj.gender)
       ..writeByte(4)
-      ..write(obj.gender);
+      ..write(obj.seatPosition);
   }
 
   @override

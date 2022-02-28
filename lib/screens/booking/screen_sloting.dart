@@ -120,7 +120,7 @@ class _ScreenSlotState extends State<ScreenSlot> {
 
   validateForm(context) {
     if (hController.didUserClicked) {
-      debugPrint("Fine");
+      hController.finalizeUserSeat();
     }
   }
 

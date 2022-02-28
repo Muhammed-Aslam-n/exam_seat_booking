@@ -1,5 +1,6 @@
 import 'package:exam_seat_booking/constants/colors.dart';
 import 'package:exam_seat_booking/controller/home_controller.dart';
+import 'package:exam_seat_booking/database/db_helper.dart';
 import 'package:exam_seat_booking/widget/appbar_widget.dart';
 import 'package:exam_seat_booking/widget/common_text.dart';
 import 'package:exam_seat_booking/widget/exam_detail_widget.dart';
@@ -11,8 +12,10 @@ import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 final ZoomDrawerController _zoomDrawerController = ZoomDrawerController();
+final hController = HomeController.homeController;
 
 class ScreenHome extends StatelessWidget {
   const ScreenHome({Key? key}) : super(key: key);
@@ -54,8 +57,8 @@ class ScreenHome extends StatelessWidget {
                   SizedBox(
                     height: 20.h,
                   ),
-                  const CommonText(
-                    text: "Sample Name",
+                  CommonText(
+                    text: hController.username,
                     color: secondaryColor,
                     size: 16,
                   ),
@@ -190,28 +193,73 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
               ),
             ),
             body: SingleChildScrollView(
+              physics: const ScrollPhysics(),
               child: Column(
                 children: [
                   SizedBox(
                     height: 40.h,
                   ),
-                  Column(
-                    children: [
-                      ExamShortDetailWidget(
-                        titleData: hController.examName,
-                        yearData: hController.examYear,
-                        detailData: hController.examDetail1,
-                        imageUrl: hController.imageUrl,
-                      ),
-                    ],
+                  ExamShortDetailWidget(
+                    titleData: hController.examName,
+                    yearData: hController.examYear,
+                    detailData: hController.examDetail1,
+                    imageUrl: hController.imageUrl,
                   ),
                   SizedBox(
                     height: 30.h,
                   ),
-                  const Text(
-                    "No User registered",
-                    style: TextStyle(color: secondaryColor),
-                  )
+                  ValueListenableBuilder(
+                    valueListenable: HomeController
+                        .homeController.userExamDetailsDbInstance!
+                        .listenable(),
+                    builder:
+                        (context, Box<UserExamDetails> userExamDetailsDb, _) {
+                      List<int> allKeys =
+                          userExamDetailsDb.keys.cast<int>().toList();
+                      debugPrint(allKeys.isEmpty.toString());
+                      return ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          if (allKeys.isEmpty) {
+                            return const Text(
+                              "No Registration",
+                              style: TextStyle(color: Colors.white),
+                            );
+                          }
+                          final userRecordKey = allKeys[index];
+                          final userRecord =
+                              userExamDetailsDb.get(userRecordKey);
+                          return Container(
+                            width: 200,
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15),
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              borderRadius: BorderRadius.circular(10.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: secondaryColor.withOpacity(0.8),
+                                  blurRadius: 1.2,
+                                  offset: const Offset(0, 0.1),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              leading: Text("${userRecord?.age}",style: const TextStyle(color: secondaryColor),),
+                              title: Text("${userRecord?.registeringUserName}",style: const TextStyle(color: secondaryColor),),
+                              subtitle: Text("${userRecord?.gender}",style: const TextStyle(color: secondaryColor),),
+                              trailing: Text("${userRecord?.seatPosition}",style: const TextStyle(color: secondaryColor),),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (context, index) => SizedBox(
+                          height: 10.h,
+                        ),
+                        itemCount: allKeys.length,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -299,7 +347,8 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                               height: 10.w,
                             ),
                             CommonText(
-                              text: "Qualification : ${hController.eligibility}",
+                              text:
+                                  "Qualification : ${hController.eligibility}",
                               color: Colors.white,
                               size: 14.sp,
                             ),
@@ -412,9 +461,9 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
 
   validateForm(context) {
     if (_formKey.currentState!.validate()) {
-      HomeController.homeController.prepareSeatBook();
+      hController.enrollUserDetailsForExam();
+      hController.prepareSeatBook();
       FocusScope.of(context).unfocus();
-      Get.toNamed('/screenSlots');
     }
   }
 

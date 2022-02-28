@@ -19,7 +19,6 @@ class LoginController extends GetxController{
   }
   registerUser(){
     bool isAlreadyExist = false;
-    debugPrint("New User Registered Successfully");
     for (var element in userLoginDbInstance!.values) {
       if(element.userName == userNameController.text){
         isAlreadyExist = true;
@@ -29,7 +28,8 @@ class LoginController extends GetxController{
       snackBar("User Already Exist");
     }else{
       final model = UserLoginDetails(userName: userNameController.text,password: passwordController.text);
-      userLoginDbInstance?.add(model);
+      userLoginDbInstance?.add(model).then((value) => Get.offNamed('/home'));
+      debugPrint("New User Registered Successfully");
     }
     clearTextEditingControllers();
   }

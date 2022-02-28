@@ -18,18 +18,24 @@ class AppBarWidget extends StatelessWidget {
       backgroundColor: primaryColor,
       elevation: 0.0,
       leading: IconButton(
-        icon: const Icon(
-          Icons.menu,
-          color: secondaryColor,
+        icon: const Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: Icon(
+            Icons.menu,
+            color: secondaryColor,
+          ),
         ),
         onPressed: () {
           controller.toggle!();
         },
       ),
       actions: [
-        IconButton(onPressed: (){
-          HomeController.homeController.logoutUser();
-        }, icon: const Icon(FontAwesome.logout,color: secondaryColor,),),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: IconButton(onPressed: (){
+            HomeController.homeController.logoutUser();
+          }, icon: const Icon(FontAwesome.logout,color: secondaryColor,),),
+        ),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(80),
