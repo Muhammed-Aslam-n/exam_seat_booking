@@ -1,6 +1,10 @@
+import 'package:exam_seat_booking/controller/home_controller.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
 
 import '../constants/colors.dart';
 
@@ -22,6 +26,11 @@ class AppBarWidget extends StatelessWidget {
           controller.toggle!();
         },
       ),
+      actions: [
+        IconButton(onPressed: (){
+          HomeController.homeController.logoutUser();
+        }, icon: const Icon(FontAwesome.logout,color: secondaryColor,),),
+      ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: Image.asset(

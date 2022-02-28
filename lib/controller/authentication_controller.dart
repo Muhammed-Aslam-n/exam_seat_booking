@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:exam_seat_booking/constants/constants.dart';
+import 'package:exam_seat_booking/database/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class LoginController extends GetxController{
   static LoginController loginController = Get.find();
@@ -9,6 +11,42 @@ class LoginController extends GetxController{
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  Box<UserLoginDetails>? userLoginDbInstance;
+  @override
+  void onInit() {
+    userLoginDbInstance = Hive.box<UserLoginDetails>(userLoginDbName);
+    super.onInit();
+  }
+  registerUser(){
+    bool isAlreadyExist = false;
+    debugPrint("New User Registered Successfully");
+    for (var element in userLoginDbInstance!.values) {
+      if(element.userName == userNameController.text){
+        isAlreadyExist = true;
+      }
+    }
+    if(isAlreadyExist){
+      snackBar("User Already Exist");
+    }else{
+      final model = UserLoginDetails(userName: userNameController.text,password: passwordController.text);
+      userLoginDbInstance?.add(model);
+    }
+    clearTextEditingControllers();
+  }
+
+  loginUser(){
+    bool isRegistered = false;
+    for (var element in userLoginDbInstance!.values) {
+      if(element.userName == userNameController.text && element.password == passwordController.text){
+        isRegistered = true;
+      }
+    }
+    if(isRegistered){
+      Get.offNamed('/home');
+    }else{
+      snackBar("Incorrect User credentials");
+    }
+  }
 
 
 

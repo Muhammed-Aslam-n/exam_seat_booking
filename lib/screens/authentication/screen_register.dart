@@ -89,15 +89,17 @@ class ScreenRegister extends StatelessWidget {
   validateForm(context) async {
     if (_formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus();
-      final SharedPreferences prefs = await _prefs;
-      bool _isLaunched = prefs.getBool(appLaunchKey) ?? true;
-      debugPrint("IsInitialLaunch? $_isLaunched");
-      if (_isLaunched) {
-        bool value = prefs.setBool(userLoggedKey, true) as bool;
-        debugPrint("Made Login value $value");
-      }
-      Future.delayed(const Duration(milliseconds: 1000))
-          .then((value) => Get.offNamed('/home'));
+      await initializeApp();
+      LoginController.loginController.registerUser();
+    }
+  }
+  initializeApp()async{
+    final SharedPreferences prefs = await _prefs;
+    bool _isLaunched = prefs.getBool(appLaunchKey) ?? true;
+    debugPrint("IsInitialLaunch? $_isLaunched");
+    if (_isLaunched) {
+      final value = prefs.setBool(userLoggedKey, true);
+      debugPrint("Made Login value $value");
     }
   }
 }

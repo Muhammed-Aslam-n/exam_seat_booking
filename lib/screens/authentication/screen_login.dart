@@ -108,20 +108,21 @@ class ScreenLogin extends StatelessWidget {
   validateForm(context) async {
     if (_formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus();
-
-      final SharedPreferences prefs = await _prefs;
-      bool _isLaunched = prefs.getBool(appLaunchKey)??false;
-      debugPrint("IsLaunched? $_isLaunched");
-
-      if (_isLaunched == false) {
-        bool launchValue = await prefs.setBool(appLaunchKey, true);
-        debugPrint("Made Launch value $launchValue");
-      }
-
-      bool value = await prefs.setBool(userLoggedKey, true);
-      debugPrint("Made Login value $value");
-      Future.delayed(const Duration(milliseconds: 1000))
-          .then((value) => Get.offNamed('/home'));
+      await initializeApp();
+      LoginController.loginController.loginUser();
     }
+  }
+  initializeApp()async{
+    final SharedPreferences prefs = await _prefs;
+    bool _isLaunched = prefs.getBool(appLaunchKey)??false;
+    debugPrint("IsLaunched? $_isLaunched");
+
+    if (_isLaunched == false) {
+      bool launchValue = await prefs.setBool(appLaunchKey, true);
+      debugPrint("Made Launch value $launchValue");
+    }
+
+    bool value = await prefs.setBool(userLoggedKey, true);
+    debugPrint("Made Login value $value");
   }
 }

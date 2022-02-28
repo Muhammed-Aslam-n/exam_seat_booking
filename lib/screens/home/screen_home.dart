@@ -1,5 +1,4 @@
 import 'package:exam_seat_booking/constants/colors.dart';
-import 'package:exam_seat_booking/controller/booking_controller.dart';
 import 'package:exam_seat_booking/controller/home_controller.dart';
 import 'package:exam_seat_booking/widget/appbar_widget.dart';
 import 'package:exam_seat_booking/widget/common_text.dart';
@@ -55,21 +54,32 @@ class ScreenHome extends StatelessWidget {
                   SizedBox(
                     height: 20.h,
                   ),
-                  const CommonText(text: "Sample Name",color: secondaryColor,size: 16,),
+                  const CommonText(
+                    text: "Sample Name",
+                    color: secondaryColor,
+                    size: 16,
+                  ),
                   SizedBox(
                     height: 40.h,
                   ),
-                  const Text("Privacy Policy",style: TextStyle(color: secondaryColor),),
+                  const Text(
+                    "Privacy Policy",
+                    style: TextStyle(color: secondaryColor),
+                  ),
                   SizedBox(
                     height: 40.h,
                   ),
-                  const Text("Terms and Conditions",style: TextStyle(color: secondaryColor),),
+                  const Text(
+                    "Terms and Conditions",
+                    style: TextStyle(color: secondaryColor),
+                  ),
                   SizedBox(
                     height: 40.h,
-
                   ),
-                  const Text("Rate App",style: TextStyle(color: secondaryColor),),
-
+                  const Text(
+                    "Rate App",
+                    style: TextStyle(color: secondaryColor),
+                  ),
                 ],
               ),
             ),
@@ -143,12 +153,12 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
   static const headerHeight = 0.0;
 
   final _formKey = GlobalKey<FormState>();
+  final hController = HomeController.homeController;
 
   Animation<RelativeRect> getPanelAnimation(BoxConstraints constraints) {
     final height = constraints.biggest.height;
     final backPanelHeight = height - headerHeight;
     const frontPanelHeight = -headerHeight;
-
     return RelativeRectTween(
       begin: RelativeRect.fromLTRB(0.0, backPanelHeight, 0.0, frontPanelHeight),
       end: const RelativeRect.fromLTRB(
@@ -186,11 +196,13 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                     height: 40.h,
                   ),
                   Column(
-                    children: const [
+                    children: [
                       ExamShortDetailWidget(
-                          titleData: "titleData",
-                          yearData: "yearData",
-                          detailData: "detailData"),
+                        titleData: hController.examName,
+                        yearData: hController.examYear,
+                        detailData: hController.examDetail1,
+                        imageUrl: hController.imageUrl,
+                      ),
                     ],
                   ),
                   SizedBox(
@@ -231,18 +243,21 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                     padding: EdgeInsets.only(left: 20.w),
                     width: MediaQuery.of(context).size.width,
                     height: (MediaQuery.of(context).size.height * 0.23).h,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage(
-                            "assets/images/default_images/defaultExamImage.jpg"),
+                        image: hController.imageUrl == null
+                            ? const AssetImage(
+                                    "assets/images/default_images/defaultExamImage.jpg")
+                                as ImageProvider
+                            : NetworkImage(hController.imageUrl.toString()),
                         fit: BoxFit.fitWidth,
                       ),
                     ),
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: CommonText(
-                        text: "Title",
-                        color: Colors.white,
+                        text: hController.examName,
+                        color: primaryColor,
                         size: 18.sp,
                       ),
                     ),
@@ -260,32 +275,36 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                               height: 10.h,
                             ),
                             CommonText(
-                              text: "Detail",
+                              text: hController.examDetail1,
                               color: Colors.white,
-                              size: 18.sp,
-                            ),
-                            CommonText(
-                              text: "Detail2",
-                              color: Colors.white,
-                              size: 18.sp,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                CommonText(
-                                  text: "Deadline",
-                                  color: Colors.white,
-                                  size: 18.sp,
-                                ),
-                                CommonText(
-                                  text: "Eligibility",
-                                  color: Colors.white,
-                                  size: 18.sp,
-                                ),
-                              ],
+                              size: 14.sp,
                             ),
                             SizedBox(
-                              height: 20.h,
+                              height: 10.w,
+                            ),
+                            CommonText(
+                              text: hController.examDetail2,
+                              color: Colors.white,
+                              size: 14.sp,
+                            ),
+                            SizedBox(
+                              height: 10.w,
+                            ),
+                            CommonText(
+                              text: "Deadline : ${hController.deadline}",
+                              color: Colors.white,
+                              size: 14.sp,
+                            ),
+                            SizedBox(
+                              height: 10.w,
+                            ),
+                            CommonText(
+                              text: "Qualification : ${hController.eligibility}",
+                              color: Colors.white,
+                              size: 14.sp,
+                            ),
+                            SizedBox(
+                              height: 30.h,
                             ),
                             CommonText(
                               text: "Enter Details",
