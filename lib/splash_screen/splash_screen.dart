@@ -135,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: const Image(
-                    image: AssetImage('assets/images/gif/splashScreenGif.gif'),
+                    image: AssetImage('assets/images/gif/splashLottie.gif'),
                     fit: BoxFit.cover,
                   ),
                 ),
