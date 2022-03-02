@@ -2,11 +2,13 @@ import 'package:exam_seat_booking/database/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
 
 class BookingController extends GetxController {
   static BookingController bookingController = Get.find();
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   Box<UserExamDetails>? userExamDetailsDbInstance;
 
@@ -17,23 +19,17 @@ class BookingController extends GetxController {
     unAvailableSeats.clear();
     super.onInit();
   }
+  late bool _isLogged;
+  checkIfUserLogged()async{
+    debugPrint('Checking on Build');
+    final SharedPreferences prefs = await _prefs;
 
-  final seatColumnNumber = [
-    '',
-    '1',
-    '2',
-    '3',
-    '',
-    '',
-    '4',
-    '5',
-    '6',
-  ];
-
-  String? setSeatName(index) {
-    return String.fromCharCode(index + 65);
+    _isLogged = prefs.getBool(userLoggedKey) ?? false;
+    if(_isLogged){
+      fetchUnAvailableSeats();
+    }
+    update();
   }
-
   List<String> unAvailableSeats = <String>[];
   int? loggedUserKey = 0;
 
@@ -45,7 +41,7 @@ class BookingController extends GetxController {
   String? selectedSeatPosition;
   UserExamDetails? userExamDetailsModel;
 
-  List<Map<String, dynamic>>? examRoom;
+  List? examRoom;
 
   fetchEnrollingUserDetails({required UserExamDetails userExamDetails}) {
     userExamDetailsModel = userExamDetails;
@@ -77,48 +73,82 @@ class BookingController extends GetxController {
     debugPrint("UnAvailable Seats are $unAvailableSeats");
   }
 
+  final seatNameList = List.generate(numberOfSeatColumns,
+      (index) => index == 0 || index == 4 || index == 5 ? -1 : index);
+
+  String? setSeatName(index) {
+    return String.fromCharCode(index + 65);
+  }
+
   showExamRoom() {
+    debugPrint(
+        "Getting values are ${userExamDetailsModel?.gender} and ${userExamDetailsModel?.age}");
+    int? age = int.tryParse(userExamDetailsModel?.age as String);
+
     examRoom = List.generate(
-        13,
-        (index1) => {
-              'seatRowName': setSeatName(index1),
-              'seatColNum': [...seatColumnNumber],
-              'value': List.generate(
-                9,
-                (index) => gender == 'Female'
-                    ? age <= 20
-                        ? index == 1 ||
-                                index == 3 ||
-                                index == 4 ||
-                                index == 5 ||
-                                index == 6 ||
-                                index == 8
-                            ? 0
+      numberOfSeatRows,
+      (index1) => List.generate(
+        numberOfSeatColumns,
+        (index2) => index2 == 0
+            ? String.fromCharCode(index1 + 65)
+            : userExamDetailsModel?.gender == 'Female'
+                ? age! <= 20
+                    ? index2 == 1 ||
+                            index2 == 3 ||
+                            index2 == 4 ||
+                            index2 == 5 ||
+                            index2 == 6 ||
+                            index2 == 8
+                        ? -1
+                        : 1
+                    : age > 20 && age < 29
+                        ? 1
+                        : index2 == 0 ||
+                                index2 == 6 ||
+                                index2 == 3 ||
+                                index1 >= 7
+                            ? -1
                             : 1
-                        : index == 0 || index == 6 || index == 3 || index1 >= 7
-                            ? 0
-                            : 1
-                    : int.tryParse(userExamDetailsModel?.age as String)! <= 20
-                        ? index == 1 || index == 8
-                            ? 0
-                            : 1
+                : age! <= 20
+                    ? index2 == 1 || index2 == 8
+                        ? -1
+                        : 1
+                    : age > 20 && age < 29
+                        ? 1
                         : index1 > 7
-                            ? 0
+                            ? -1
                             : 1,
-              ),
-            },
-        growable: false);
+      ),
+    );
+
+    if (userExamDetailsDbInstance!.isNotEmpty) {
+      dynamic unAVArray = unAvailableSeats.join();
+      unAVArray = unAVArray.split('');
+      int rowNum;
+      for (var i = 0; i < unAVArray.length; i = i + 2) {
+        rowNum = getRowIndex(unAVArray[i]);
+        examRoom![rowNum][int.tryParse(unAVArray[i + 1]) as int] = -1;
+      }
+    }
     update();
   }
 
+  getRowIndex(String value) {
+    var k = value.toUpperCase().codeUnitAt(0);
+    int index = k - 65;
+    return index;
+  }
+
   selectNewSeat(int rowIndex, int columnIndex) {
-    examRoom![rowIndex]['value'][columnIndex] == 1
-        ? examRoom![rowIndex]['value'][columnIndex] = 2
-        : examRoom![rowIndex]['value'][columnIndex] = 1;
-    selectedSeatPosition = examRoom![rowIndex]['seatRowName'] +
-        examRoom![rowIndex]['seatColNum'][columnIndex];
+
+    debugPrint("Getting RowIndex is $rowIndex and ColumnIndex is $columnIndex");
+
+    examRoom![rowIndex][columnIndex] == 1
+        ? examRoom![rowIndex][columnIndex] = 2
+        : examRoom![rowIndex][columnIndex] = 1;
+    selectedSeatPosition = examRoom![rowIndex].first.toString() + seatNameList[columnIndex].toString();
     debugPrint("Selected Position is $selectedSeatPosition");
-    examRoom![rowIndex]['value'][columnIndex] != 1
+    examRoom![rowIndex][columnIndex] != 1
         ? debugPrint("Selected")
         : debugPrint("DeSelected");
     didUserClicked == true ? didUserClicked = false : didUserClicked = true;

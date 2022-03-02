@@ -72,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen>
             Get.offNamed('/login');
           }
         } else {
-          Get.toNamed('/login');
+          Get.offNamed('/login');
         }
       });
     });

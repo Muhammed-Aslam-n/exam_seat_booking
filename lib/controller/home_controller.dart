@@ -16,13 +16,29 @@ class HomeController extends GetxController{
   // Box<User>
 
   @override
-  void onInit(){
+  void onInit() async{
     userLoginDbInstance = Hive.box<UserLoginDetails>(userLoginDbName);
     userExamDetailsDbInstance = Hive.box<UserExamDetails>(userExamDbName);
-    fetchHomeExamDetails();
+    await checkIfUserLogged();
     // userExamDetailsDbInstance?.clear();
-    fetchUserDetails();
+    fetchHomeExamDetails();
     super.onInit();
+  }
+  late bool _isLogged;
+  String? _currentLoggedUserName;
+
+  checkIfUserLogged()async{
+    debugPrint('Checking on Build');
+    final SharedPreferences prefs = await _prefs;
+    _currentLoggedUserName = prefs.getString(currentUserNameKey);
+
+    debugPrint('currentUserName on Build $_currentLoggedUserName');
+    _isLogged = prefs.getBool(userLoggedKey) ?? false;
+    if(_isLogged){
+      debugPrint("Fetching0");
+      await fetchUserDetails();
+    }
+    update();
   }
 
   String? examName;
@@ -35,12 +51,11 @@ class HomeController extends GetxController{
   int userCurrespondingKey = 0;
 
   fetchUserDetails() async{
-    var keys = userLoginDbInstance?.keys.cast<int>().toList();
-    keys?.forEach((key) {
-      final record = userLoginDbInstance?.get(key);
+    debugPrint("CurrentUSERNAME $_currentLoggedUserName");
+    var keys = userLoginDbInstance?.keys.cast<int>().where((key) => userLoginDbInstance?.get(key)?.userName == _currentLoggedUserName).toList();
+      final record = userLoginDbInstance?.get(keys![0]);
       username = record?.userName;
-      userCurrespondingKey = key;
-    });
+      userCurrespondingKey = keys!.first;
     update();
   }
 
@@ -53,11 +68,10 @@ class HomeController extends GetxController{
 
 
   TextEditingController nameController = TextEditingController(text: "Muhammed Aslam n");
-  TextEditingController ageController = TextEditingController(text: "21");
-  TextEditingController genderController = TextEditingController();
+  TextEditingController ageController = TextEditingController(text: "20");
 
   final genderOptions = ['Male','Female','Other'];
-  String? defaultSelectedItem = "Male".obs();
+  String? defaultSelectedItem = "Female".obs();
   changeDropdownItem(value) {
     defaultSelectedItem = value;
     update(['dropDownItem']);
@@ -79,7 +93,7 @@ class HomeController extends GetxController{
     examYear = examHomeDetails?.year;
     examDetail1 = examHomeDetails?.detail1;
     examDetail2 = examHomeDetails?.detail2;
-    deadline = DateFormat.yMd().format(examHomeDetails?.examDate as DateTime);
+    deadline = DateFormat.yMd().format(examHomeDetails?.examDate == null?DateTime.now():examHomeDetails!.examDate as DateTime);
     eligibility = examHomeDetails?.eligibility;
     imageUrl = examHomeDetails?.image;
     update();
@@ -87,7 +101,7 @@ class HomeController extends GetxController{
 
   logoutUser() async{
     final SharedPreferences prefs = await _prefs;
-    final value = prefs.setBool(userLoggedKey, false);
+    final value = prefs.clear();
     debugPrint("Made Login value $value");
       Get.offNamed('/login');
   }
